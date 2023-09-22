@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
@@ -34,7 +33,7 @@ class TaskRunner {
   Function(dynamic key)? onStatusChanged;
 
   Future<dynamic> run(
-    Future future,
+    Function future,
     dynamic key, {
     Future<bool> Function()? onErrorRetry,
   }) async {
@@ -75,7 +74,7 @@ class TaskWorker {
       .toList();
 
   Future<dynamic> run(
-    Future future,
+    Function future,
     dynamic key, {
     Future<bool> Function()? onErrorRetry,
   }) async {
@@ -122,7 +121,7 @@ class TaskWorker {
       onChanged?.call(job.unique);
 
       try {
-        final result = await Future.wait([job.future]);
+        final result = await job.future();
         job.completedTime = DateTime.now();
         job.status = TaskJobStatus.done;
         job.onCompleted(result);
@@ -174,7 +173,7 @@ class TaskJob {
   DateTime? createdTime;
   DateTime? completedTime;
   TaskJobStatus status;
-  final Future future;
+  final Function future;
   final Function(dynamic) onCompleted;
   final Function(dynamic error, StackTrace stackTrace)? onError;
   final Future<bool> Function()? onErrorRetry;
